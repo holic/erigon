@@ -8,12 +8,12 @@ import (
 )
 
 type HistoricalSummary struct {
-	BlockSummaryRoot libcommon.Hash
-	StateSummaryRoot libcommon.Hash
+	BlockSummaryRoot libcommon.Hash `ssz:"true"`
+	StateSummaryRoot libcommon.Hash `ssz:"true"`
 }
 
 func (h *HistoricalSummary) EncodeSSZ(buf []byte) ([]byte, error) {
-	return append(buf, append(h.BlockSummaryRoot[:], h.StateSummaryRoot[:]...)...), nil
+	return ssz.Encode(h, buf)
 }
 
 func (h *HistoricalSummary) DecodeSSZ(buf []byte) error {
@@ -30,7 +30,7 @@ func (h *HistoricalSummary) DecodeSSZWithVersion(buf []byte, _ int) error {
 }
 
 func (h *HistoricalSummary) HashSSZ() ([32]byte, error) {
-	return merkle_tree.ArraysRoot([][32]byte{h.BlockSummaryRoot, h.StateSummaryRoot}, 2)
+	return merkle_tree.HashTreeRoot(h)
 }
 
 func (*HistoricalSummary) EncodingSizeSSZ() int {

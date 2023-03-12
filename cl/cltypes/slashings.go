@@ -6,19 +6,12 @@ import (
 )
 
 type ProposerSlashing struct {
-	Header1 *SignedBeaconBlockHeader
-	Header2 *SignedBeaconBlockHeader
+	Header1 *SignedBeaconBlockHeader `ssz:"true"`
+	Header2 *SignedBeaconBlockHeader `ssz:"true"`
 }
 
-func (p *ProposerSlashing) EncodeSSZ(dst []byte) (buf []byte, err error) {
-	buf = dst
-	if buf, err = p.Header1.EncodeSSZ(buf); err != nil {
-		return
-	}
-	if buf, err = p.Header2.EncodeSSZ(buf); err != nil {
-		return
-	}
-	return
+func (p *ProposerSlashing) EncodeSSZ(dst []byte) ([]byte, error) {
+	return ssz.Encode(p, dst)
 }
 
 func (p *ProposerSlashing) DecodeSSZ(buf []byte) error {
@@ -39,15 +32,7 @@ func (p *ProposerSlashing) EncodingSizeSSZ() int {
 }
 
 func (p *ProposerSlashing) HashSSZ() ([32]byte, error) {
-	root1, err := p.Header1.HashSSZ()
-	if err != nil {
-		return [32]byte{}, err
-	}
-	root2, err := p.Header2.HashSSZ()
-	if err != nil {
-		return [32]byte{}, err
-	}
-	return merkle_tree.ArraysRoot([][32]byte{root1, root2}, 2)
+	return merkle_tree.HashTreeRoot(p)
 }
 
 type AttesterSlashing struct {

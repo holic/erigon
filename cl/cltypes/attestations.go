@@ -442,11 +442,11 @@ func (i *IndexedAttestation) HashSSZ() ([32]byte, error) {
 
 // AttestantionData contains information about attestantion, including finalized/attested checkpoints.
 type AttestationData struct {
-	Slot            uint64
-	Index           uint64
-	BeaconBlockHash libcommon.Hash
-	Source          *Checkpoint
-	Target          *Checkpoint
+	Slot            uint64         `ssz:"true"`
+	Index           uint64         `ssz:"true"`
+	BeaconBlockHash libcommon.Hash `ssz:"true"`
+	Source          *Checkpoint    `ssz:"true"`
+	Target          *Checkpoint    `ssz:"true"`
 }
 
 func (a *AttestationData) Equal(other *AttestationData) bool {
@@ -456,15 +456,7 @@ func (a *AttestationData) Equal(other *AttestationData) bool {
 
 // EncodeSSZ ssz marshals the AttestationData object
 func (a *AttestationData) EncodeSSZ(dst []byte) ([]byte, error) {
-	buf := dst
-	var err error
-	buf = append(buf, ssz.Uint64SSZ(a.Slot)...)
-	buf = append(buf, ssz.Uint64SSZ(a.Index)...)
-	buf = append(buf, a.BeaconBlockHash[:]...)
-	if buf, err = a.Source.EncodeSSZ(buf); err != nil {
-		return nil, err
-	}
-	return a.Target.EncodeSSZ(buf)
+	return ssz.Encode(a, dst)
 }
 
 // DecodeSSZ ssz unmarshals the AttestationData object
@@ -499,21 +491,7 @@ func (a *AttestationData) EncodingSizeSSZ() int {
 
 // HashSSZ ssz hashes the AttestationData object
 func (a *AttestationData) HashSSZ() ([32]byte, error) {
-	sourceRoot, err := a.Source.HashSSZ()
-	if err != nil {
-		return [32]byte{}, err
-	}
-	targetRoot, err := a.Target.HashSSZ()
-	if err != nil {
-		return [32]byte{}, err
-	}
-	return merkle_tree.ArraysRoot([][32]byte{
-		merkle_tree.Uint64Root(a.Slot),
-		merkle_tree.Uint64Root(a.Index),
-		a.BeaconBlockHash,
-		sourceRoot,
-		targetRoot,
-	}, 8)
+	return merkle_tree.HashTreeRoot(a)
 }
 
 // Pending attestation. (only in Phase0 state)
@@ -531,7 +509,6 @@ func (a *PendingAttestation) EncodeSSZ(buf []byte) (dst []byte, err error) {
 	if dst, err = a.Data.EncodeSSZ(dst); err != nil {
 		return
 	}
-	fmt.Println(dst)
 	dst = append(dst, ssz.Uint64SSZ(a.InclusionDelay)...)
 	dst = append(dst, ssz.Uint64SSZ(a.ProposerIndex)...)
 

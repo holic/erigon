@@ -9,8 +9,8 @@ import (
 )
 
 type Checkpoint struct {
-	Epoch uint64
-	Root  libcommon.Hash
+	Epoch uint64         `ssz:"true"`
+	Root  libcommon.Hash `ssz:"true"`
 }
 
 func (c *Checkpoint) Equal(other *Checkpoint) bool {
@@ -18,7 +18,7 @@ func (c *Checkpoint) Equal(other *Checkpoint) bool {
 }
 
 func (c *Checkpoint) EncodeSSZ(buf []byte) ([]byte, error) {
-	return append(buf, append(ssz.Uint64SSZ(c.Epoch), c.Root[:]...)...), nil
+	return ssz.Encode(c, buf)
 }
 
 func (c *Checkpoint) DecodeSSZ(buf []byte) error {
@@ -38,5 +38,5 @@ func (c *Checkpoint) EncodingSizeSSZ() int {
 }
 
 func (c *Checkpoint) HashSSZ() ([32]byte, error) {
-	return merkle_tree.ArraysRoot([][32]byte{merkle_tree.Uint64Root(c.Epoch), c.Root}, 2)
+	return merkle_tree.HashTreeRoot(c)
 }

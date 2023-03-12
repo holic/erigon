@@ -196,11 +196,15 @@ func (b *BeaconBody) EncodeSSZ(dst []byte) ([]byte, error) {
 	}
 
 	for _, deposit := range b.Deposits {
-		buf = deposit.EncodeSSZ(buf)
+		if buf, err = deposit.EncodeSSZ(buf); err != nil {
+			return nil, err
+		}
 	}
 
 	for _, exit := range b.VoluntaryExits {
-		buf = exit.EncodeSSZ(buf)
+		if buf, err = exit.EncodeSSZ(buf); err != nil {
+			return nil, err
+		}
 	}
 
 	if b.Version >= clparams.BellatrixVersion {

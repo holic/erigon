@@ -8,9 +8,9 @@ import (
 )
 
 type Metadata struct {
-	SeqNumber uint64
-	Attnets   uint64
-	Syncnets  *uint64
+	SeqNumber uint64  `ssz:"true"`
+	Attnets   uint64  `ssz:"true"`
+	Syncnets  *uint64 `ssz:"true"`
 }
 
 func (m *Metadata) EncodeSSZ(buf []byte) ([]byte, error) {
@@ -101,8 +101,8 @@ func (*SingleRoot) Clone() clonable.Clonable {
  * It takes the Period of the starting update and the amount of updates we want (MAX: 128).
  */
 type LightClientUpdatesByRangeRequest struct {
-	Period uint64
-	Count  uint64
+	Period uint64 `ssz:"true"`
+	Count  uint64 `ssz:"true"`
 }
 
 func (*LightClientUpdatesByRangeRequest) Clone() clonable.Clonable {
@@ -114,7 +114,7 @@ func (l *LightClientUpdatesByRangeRequest) DecodeSSZWithVersion(buf []byte, _ in
 }
 
 func (l *LightClientUpdatesByRangeRequest) EncodeSSZ(buf []byte) ([]byte, error) {
-	return append(buf, append(ssz.Uint64SSZ(l.Period), ssz.Uint64SSZ(l.Count)...)...), nil
+	return ssz.Encode(l, buf)
 }
 
 func (l *LightClientUpdatesByRangeRequest) DecodeSSZ(buf []byte) error {
@@ -131,17 +131,13 @@ func (l *LightClientUpdatesByRangeRequest) EncodingSizeSSZ() int {
  * BeaconBlocksByRangeRequest is the request for getting a range of blocks.
  */
 type BeaconBlocksByRangeRequest struct {
-	StartSlot uint64
-	Count     uint64
-	Step      uint64 // Deprecated, must be set to 1
+	StartSlot uint64 `ssz:"true"`
+	Count     uint64 `ssz:"true"`
+	Step      uint64 `ssz:"true"`
 }
 
 func (b *BeaconBlocksByRangeRequest) EncodeSSZ(buf []byte) ([]byte, error) {
-	dst := buf
-	dst = append(dst, ssz.Uint64SSZ(b.StartSlot)...)
-	dst = append(dst, ssz.Uint64SSZ(b.Count)...)
-	dst = append(dst, ssz.Uint64SSZ(b.Step)...)
-	return dst, nil
+	return ssz.Encode(b, buf)
 }
 
 func (b *BeaconBlocksByRangeRequest) DecodeSSZ(buf []byte) error {
@@ -168,21 +164,15 @@ func (*BeaconBlocksByRangeRequest) Clone() clonable.Clonable {
  * It contains network information about the other peer and if mismatching we drop it.
  */
 type Status struct {
-	ForkDigest     [4]byte  `ssz-size:"4"`
-	FinalizedRoot  [32]byte `ssz-size:"32"`
-	FinalizedEpoch uint64
-	HeadRoot       [32]byte `ssz-size:"32"`
-	HeadSlot       uint64
+	ForkDigest     [4]byte  `ssz:"true"`
+	FinalizedRoot  [32]byte `ssz:"true"`
+	FinalizedEpoch uint64   `ssz:"true"`
+	HeadRoot       [32]byte `ssz:"true"`
+	HeadSlot       uint64   `ssz:"true"`
 }
 
 func (s *Status) EncodeSSZ(buf []byte) ([]byte, error) {
-	dst := buf
-	dst = append(dst, s.ForkDigest[:]...)
-	dst = append(dst, s.FinalizedRoot[:]...)
-	dst = append(dst, ssz.Uint64SSZ(s.FinalizedEpoch)...)
-	dst = append(dst, s.HeadRoot[:]...)
-	dst = append(dst, ssz.Uint64SSZ(s.HeadSlot)...)
-	return dst, nil
+	return ssz.Encode(s, buf)
 }
 
 func (s *Status) DecodeSSZ(buf []byte) error {

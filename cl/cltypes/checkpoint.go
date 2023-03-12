@@ -22,15 +22,7 @@ func (c *Checkpoint) EncodeSSZ(buf []byte) ([]byte, error) {
 }
 
 func (c *Checkpoint) DecodeSSZ(buf []byte) error {
-	var err error
-	size := uint64(len(buf))
-	if size < uint64(c.EncodingSizeSSZ()) {
-		return ssz.ErrLowBufferSize
-	}
-	c.Epoch = ssz.UnmarshalUint64SSZ(buf[0:8])
-	copy(c.Root[:], buf[8:40])
-
-	return err
+	return ssz.Decode(c, buf)
 }
 
 func (c *Checkpoint) EncodingSizeSSZ() int {

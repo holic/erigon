@@ -25,17 +25,7 @@ func (e *Eth1Data) EncodeSSZ(buf []byte) ([]byte, error) {
 
 // DecodeSSZ ssz unmarshals the Eth1Data object
 func (e *Eth1Data) DecodeSSZ(buf []byte) error {
-	var err error
-	size := uint64(len(buf))
-	if size < 72 {
-		return ssz.ErrLowBufferSize
-	}
-
-	copy(e.Root[:], buf[0:32])
-	e.DepositCount = ssz.UnmarshalUint64SSZ(buf[32:40])
-	copy(e.BlockHash[:], buf[40:72])
-
-	return err
+	return ssz.Decode(e, buf)
 }
 
 func (e *Eth1Data) DecodeSSZWithVersion(buf []byte, _ int) error {

@@ -25,12 +25,7 @@ func (b *BeaconBlockHeader) EncodeSSZ(dst []byte) ([]byte, error) {
 }
 
 func (b *BeaconBlockHeader) DecodeSSZ(buf []byte) error {
-	b.Slot = ssz.UnmarshalUint64SSZ(buf)
-	b.ProposerIndex = ssz.UnmarshalUint64SSZ(buf[8:])
-	copy(b.ParentRoot[:], buf[16:])
-	copy(b.Root[:], buf[48:])
-	copy(b.BodyRoot[:], buf[80:])
-	return nil
+	return ssz.Decode(b, buf)
 }
 
 func (b *BeaconBlockHeader) HashSSZ() ([32]byte, error) {
@@ -54,12 +49,7 @@ func (b *SignedBeaconBlockHeader) EncodeSSZ(dst []byte) ([]byte, error) {
 }
 
 func (b *SignedBeaconBlockHeader) DecodeSSZ(buf []byte) error {
-	b.Header = new(BeaconBlockHeader)
-	if err := b.Header.DecodeSSZ(buf); err != nil {
-		return err
-	}
-	copy(b.Signature[:], buf[b.Header.EncodingSizeSSZ():])
-	return nil
+	return ssz.Decode(b, buf)
 }
 
 func (b *SignedBeaconBlockHeader) HashSSZ() ([32]byte, error) {

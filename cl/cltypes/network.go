@@ -50,16 +50,15 @@ func (m *Metadata) DecodeSSZWithVersion(buf []byte, _ int) error {
 
 // Ping is a test P2P message, used to test out liveness of our peer/signaling disconnection.
 type Ping struct {
-	Id uint64
+	Id uint64 `ssz:"true"`
 }
 
 func (p *Ping) EncodeSSZ(buf []byte) ([]byte, error) {
-	return append(buf, ssz.Uint64SSZ(p.Id)...), nil
+	return ssz.Encode(p, buf)
 }
 
 func (p *Ping) DecodeSSZ(buf []byte) error {
-	p.Id = ssz.UnmarshalUint64SSZ(buf)
-	return nil
+	return ssz.Decode(p, buf)
 }
 
 func (p *Ping) EncodingSizeSSZ() int {
@@ -72,16 +71,15 @@ func (p *Ping) DecodeSSZWithVersion(buf []byte, _ int) error {
 
 // P2P Message for bootstrap
 type SingleRoot struct {
-	Root [32]byte
+	Root [32]byte `ssz:"true"`
 }
 
 func (s *SingleRoot) EncodeSSZ(buf []byte) ([]byte, error) {
-	return append(buf, s.Root[:]...), nil
+	return ssz.Encode(s, buf)
 }
 
 func (s *SingleRoot) DecodeSSZ(buf []byte) error {
-	copy(s.Root[:], buf)
-	return nil
+	return ssz.Decode(s, buf)
 }
 
 func (s *SingleRoot) EncodingSizeSSZ() int {
@@ -118,9 +116,7 @@ func (l *LightClientUpdatesByRangeRequest) EncodeSSZ(buf []byte) ([]byte, error)
 }
 
 func (l *LightClientUpdatesByRangeRequest) DecodeSSZ(buf []byte) error {
-	l.Period = ssz.UnmarshalUint64SSZ(buf)
-	l.Count = ssz.UnmarshalUint64SSZ(buf[8:])
-	return nil
+	return ssz.Decode(l, buf)
 }
 
 func (l *LightClientUpdatesByRangeRequest) EncodingSizeSSZ() int {
@@ -141,10 +137,7 @@ func (b *BeaconBlocksByRangeRequest) EncodeSSZ(buf []byte) ([]byte, error) {
 }
 
 func (b *BeaconBlocksByRangeRequest) DecodeSSZ(buf []byte) error {
-	b.StartSlot = ssz.UnmarshalUint64SSZ(buf)
-	b.Count = ssz.UnmarshalUint64SSZ(buf[8:])
-	b.Step = ssz.UnmarshalUint64SSZ(buf[16:])
-	return nil
+	return ssz.Decode(b, buf)
 }
 
 func (b *BeaconBlocksByRangeRequest) DecodeSSZWithVersion(buf []byte, _ int) error {
@@ -176,12 +169,7 @@ func (s *Status) EncodeSSZ(buf []byte) ([]byte, error) {
 }
 
 func (s *Status) DecodeSSZ(buf []byte) error {
-	copy(s.ForkDigest[:], buf)
-	copy(s.FinalizedRoot[:], buf[4:])
-	s.FinalizedEpoch = ssz.UnmarshalUint64SSZ(buf[36:])
-	copy(s.HeadRoot[:], buf[44:])
-	s.HeadSlot = ssz.UnmarshalUint64SSZ(buf[76:])
-	return nil
+	return ssz.Decode(s, buf)
 }
 
 func (s *Status) DecodeSSZWithVersion(buf []byte, _ int) error {

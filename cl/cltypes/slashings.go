@@ -15,12 +15,7 @@ func (p *ProposerSlashing) EncodeSSZ(dst []byte) ([]byte, error) {
 }
 
 func (p *ProposerSlashing) DecodeSSZ(buf []byte) error {
-	p.Header1 = new(SignedBeaconBlockHeader)
-	p.Header2 = new(SignedBeaconBlockHeader)
-	if err := p.Header1.DecodeSSZ(buf); err != nil {
-		return err
-	}
-	return p.Header2.DecodeSSZ(buf[p.Header1.EncodingSizeSSZ():])
+	return ssz.Decode(p, buf)
 }
 
 func (p *ProposerSlashing) DecodeSSZWithVersion(buf []byte, _ int) error {

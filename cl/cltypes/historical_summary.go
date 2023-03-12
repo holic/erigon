@@ -17,12 +17,7 @@ func (h *HistoricalSummary) EncodeSSZ(buf []byte) ([]byte, error) {
 }
 
 func (h *HistoricalSummary) DecodeSSZ(buf []byte) error {
-	if len(buf) < h.EncodingSizeSSZ() {
-		return ssz.ErrLowBufferSize
-	}
-	copy(h.BlockSummaryRoot[:], buf)
-	copy(h.StateSummaryRoot[:], buf[length.Hash:])
-	return nil
+	return ssz.Decode(h, buf)
 }
 
 func (h *HistoricalSummary) DecodeSSZWithVersion(buf []byte, _ int) error {

@@ -18,13 +18,7 @@ func (f *Fork) EncodeSSZ(dst []byte) ([]byte, error) {
 }
 
 func (f *Fork) DecodeSSZ(buf []byte) error {
-	if len(buf) < f.EncodingSizeSSZ() {
-		return ssz.ErrLowBufferSize
-	}
-	copy(f.PreviousVersion[:], buf)
-	copy(f.CurrentVersion[:], buf[clparams.VersionLength:])
-	f.Epoch = ssz.UnmarshalUint64SSZ(buf[clparams.VersionLength*2:])
-	return nil
+	return ssz.Decode(f, buf)
 }
 
 func (f *Fork) EncodingSizeSSZ() int {

@@ -28,11 +28,7 @@ func (d *DepositData) EncodeSSZ(dst []byte) ([]byte, error) {
 }
 
 func (d *DepositData) DecodeSSZ(buf []byte) error {
-	copy(d.PubKey[:], buf)
-	copy(d.WithdrawalCredentials[:], buf[48:])
-	d.Amount = ssz.UnmarshalUint64SSZ(buf[80:])
-	copy(d.Signature[:], buf[88:])
-	return nil
+	return ssz.Decode(d, buf)
 }
 
 func (d *DepositData) EncodingSizeSSZ() int {
@@ -321,18 +317,7 @@ func (v *Validator) DecodeSSZWithVersion(buf []byte, _ int) error {
 }
 
 func (v *Validator) DecodeSSZ(buf []byte) error {
-	if len(buf) < v.EncodingSizeSSZ() {
-		return ssz.ErrLowBufferSize
-	}
-	copy(v.PublicKey[:], buf)
-	copy(v.WithdrawalCredentials[:], buf[48:])
-	v.EffectiveBalance = ssz.UnmarshalUint64SSZ(buf[80:])
-	v.Slashed = buf[88] == 1
-	v.ActivationEligibilityEpoch = ssz.UnmarshalUint64SSZ(buf[89:])
-	v.ActivationEpoch = ssz.UnmarshalUint64SSZ(buf[97:])
-	v.ExitEpoch = ssz.UnmarshalUint64SSZ(buf[105:])
-	v.WithdrawableEpoch = ssz.UnmarshalUint64SSZ(buf[113:])
-	return nil
+	return ssz.Decode(v, buf)
 }
 
 func (v *Validator) EncodingSizeSSZ() int {
